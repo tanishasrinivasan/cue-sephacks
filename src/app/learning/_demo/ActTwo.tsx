@@ -93,7 +93,7 @@ export default function ActTwo() {
                 <TapCount taps={rushingTaps(story.second, p2)} caption="after one answer" />
               </div>
               <div className="mt-4">
-                <PaceChart trace={story.second} domain={domain} progress={p2} />
+                <PaceChart trace={story.second} domain={domain} progress={p2} rings />
               </div>
             </div>
           </div>

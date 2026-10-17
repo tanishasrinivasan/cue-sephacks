@@ -47,7 +47,7 @@ function Story({ story, elapsed }: { story: TwoSessions; elapsed: number }) {
           <TapCount taps={rushingTaps(story.first, p1)} caption="Cue doesn't know them yet" />
         </div>
         <div className="mt-4">
-          <PaceChart trace={story.first} domain={domain} progress={p1} />
+          <PaceChart trace={story.first} domain={domain} progress={p1} rings />
         </div>
       </div>
       <PaceLegend />
@@ -68,7 +68,7 @@ function Story({ story, elapsed }: { story: TwoSessions; elapsed: number }) {
             <TapCount taps={rushingTaps(story.second, p2)} caption="Cue knows their pace" />
           </div>
           <div className="mt-4">
-            <PaceChart trace={story.second} domain={domain} progress={p2} />
+            <PaceChart trace={story.second} domain={domain} progress={p2} rings />
           </div>
         </div>
       )}

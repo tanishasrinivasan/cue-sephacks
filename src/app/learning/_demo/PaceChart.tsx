@@ -13,16 +13,20 @@ const mmss = (t: number) => `${Math.floor(t / 60)}:${String(Math.round(t % 60)).
 
 /**
  * Pace through a session (area color), the slow-down point in force (dashed, Cue), and each tap,
- * drawn up to `progress` of the session so a session can play out.
+ * drawn up to `progress` of the session so a session can play out. Above the slow-down point is
+ * the rushing zone: the pace line is full strength only inside it. With `rings`, each tap spreads
+ * a ring as the playback reaches it, like the ring from the motor.
  */
 export default function PaceChart({
   trace,
   domain,
   progress = 1,
+  rings = false,
 }: {
   trace: Trace;
   domain: [number, number];
   progress?: number;
+  rings?: boolean;
 }) {
   const [ref, width] = useWidth();
   const clip = useId();
@@ -38,6 +42,8 @@ export default function PaceChart({
   // Without a learned pace, a session learns one after a minute of speech: the step in the line.
   const [, before, after] = trace.limit;
   const learned = after && Math.abs(after.wpm - before.wpm) >= NOTABLE_SHIFT && now >= after.t ? after : null;
+  const zone = `M ${x(0)} ${PAD.top} ${trace.limit.map((p) => `L ${x(p.t)} ${y(p.wpm)}`).join(" ")} L ${x(trace.duration)} ${PAD.top} Z`;
+  const head = progress > 0 && progress < 1 ? trace.pace.findLast((p) => p.t <= now) : undefined;
 
   return (
     <div ref={ref} className="w-full">
@@ -53,6 +59,9 @@ export default function PaceChart({
             <clipPath id={clip}>
               <rect x={0} y={0} width={x(now)} height={H} />
             </clipPath>
+            <clipPath id={`${clip}z`}>
+              <path d={zone} />
+            </clipPath>
           </defs>
           {ticks.map((v) => (
             <g key={v}>
@@ -67,6 +76,7 @@ export default function PaceChart({
               {mmss(t)}
             </text>
           ))}
+          <path d={zone} fill="var(--area-pace)" fillOpacity={0.1} />
           {/* Taps sit on a strip along the top, at the moment they were felt. */}
           {taps.map((tap) => (
             <g key={tap.t}>
@@ -80,6 +90,17 @@ export default function PaceChart({
                 strokeWidth={1}
               />
               <circle cx={x(tap.t)} cy={8} r={5} fill="var(--cue)" />
+              {rings && (
+                <circle
+                  className="tap-ring"
+                  cx={x(tap.t)}
+                  cy={8}
+                  r={5}
+                  fill="none"
+                  stroke="var(--cue)"
+                  strokeWidth={1.5}
+                />
+              )}
             </g>
           ))}
           <g clipPath={`url(#${clip})`}>
@@ -94,7 +115,17 @@ export default function PaceChart({
               points={line(trace.pace)}
               fill="none"
               stroke="var(--area-pace)"
-              strokeWidth={2.5}
+              strokeOpacity={0.4}
+              strokeWidth={2}
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
+            <polyline
+              points={line(trace.pace)}
+              clipPath={`url(#${clip}z)`}
+              fill="none"
+              stroke="var(--area-pace)"
+              strokeWidth={3}
               strokeLinejoin="round"
               strokeLinecap="round"
             />
@@ -109,8 +140,15 @@ export default function PaceChart({
               Cue learns their pace
             </text>
           )}
-          {progress > 0 && progress < 1 && (
-            <line x1={x(now)} x2={x(now)} y1={PAD.top} y2={H - PAD.bottom} stroke="var(--muted)" strokeWidth={1} />
+          {head && (
+            <circle
+              cx={x(head.t)}
+              cy={y(head.wpm)}
+              r={4.5}
+              fill="var(--area-pace)"
+              stroke="var(--surface)"
+              strokeWidth={2}
+            />
           )}
         </svg>
       )}
@@ -123,6 +161,9 @@ export function PaceLegend() {
     <ul className="flex flex-wrap gap-x-5 gap-y-1 text-caption text-muted">
       <li className="flex items-center gap-1.5">
         <span className="h-[3px] w-4 rounded-full bg-[var(--area-pace)]" /> Pace, words a minute
+      </li>
+      <li className="flex items-center gap-1.5">
+        <span className="h-2.5 w-4 rounded-sm bg-[var(--area-pace)]/10" /> Rushing
       </li>
       <li className="flex items-center gap-1.5">
         <span className="w-4 border-t-[1.5px] border-dashed border-cue" /> Slow-down point

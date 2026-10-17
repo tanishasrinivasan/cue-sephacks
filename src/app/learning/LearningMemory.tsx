@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { activeAdaptations, STAGE_LABEL, stageOf } from "@/lib/learning/coaching";
 import type { Profile } from "@/lib/learning/types";
 import type { Learning } from "./useLearning";
@@ -44,6 +45,16 @@ export function LearningMemory({ learning }: { learning: Learning }) {
   // A new update has its own card above; this repeats the last one already read.
   const latest = p.updates.findLast((u) => u.status === "seen");
   const next = STEPS.findIndex((s) => !s.done(p));
+  // Steps that have just been reached ring once, one after another. The previous render's steps
+  // are kept in state (React's "storing information from previous renders" pattern).
+  const flags = STEPS.map((s) => (s.done(p) ? "1" : "0")).join("");
+  const [seen, setSeen] = useState(flags);
+  const [fresh, setFresh] = useState("");
+  if (seen !== flags) {
+    setFresh(STEPS.map((_, k) => (flags[k] === "1" && seen[k] !== "1" ? "1" : "0")).join(""));
+    setSeen(flags);
+  }
+  const stagger = (k: number) => ({ transitionDelay: `${k * 160}ms`, animationDelay: `${k * 160}ms` });
 
   return (
     <section
@@ -73,19 +84,37 @@ export function LearningMemory({ learning }: { learning: Learning }) {
           : "Every session teaches it something, and the next one is coached differently because of it."}
       </p>
 
-      <ol className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div aria-hidden className="mt-5 grid grid-cols-4 gap-1.5">
+        {STEPS.map((s, k) => (
+          <span
+            key={s.title}
+            style={stagger(k)}
+            className={`h-1.5 rounded-full transition-colors duration-500 ${flags[k] === "1" ? "bg-cue" : "bg-surface-2"}`}
+          />
+        ))}
+      </div>
+
+      <ol className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {STEPS.map((s, k) => {
           const done = s.done(p);
           return (
             <li
               key={s.title}
-              className={`rounded-2xl border p-3 ${done ? "border-cue bg-cue-soft" : k === next ? "border-line" : "border-line opacity-60"}`}
+              style={stagger(k)}
+              className={`rounded-2xl border p-3 transition-colors duration-500 ${done ? "border-cue bg-cue-soft" : k === next ? "border-line" : "border-line opacity-60"}`}
             >
               <span
                 aria-hidden
-                className={`flex size-6 items-center justify-center rounded-full text-caption font-semibold ${done ? "bg-cue text-on-cue" : "bg-surface-2 text-muted"}`}
+                className={`relative flex size-6 items-center justify-center rounded-full text-caption font-semibold ${done ? "bg-cue text-on-cue" : "bg-surface-2 text-muted"}`}
               >
                 {done ? "✓" : k + 1}
+                {fresh[k] === "1" && (
+                  <span
+                    key={flags}
+                    style={stagger(k)}
+                    className="tap-ring absolute inset-0 rounded-full border-2 border-cue"
+                  />
+                )}
               </span>
               <p className="mt-2 text-body-sm font-semibold">{s.title}</p>
               <p className="text-caption text-muted">

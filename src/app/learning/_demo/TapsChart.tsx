@@ -89,9 +89,18 @@ export default function TapsChart({
             if (s.index > shown) return null;
             return (
               <g key={s.index}>
-                <rect x={cx} y={y(s.rushingTaps)} width={bar} height={y(0) - y(s.rushingTaps)} rx={2} fill={fill} />
+                <rect
+                  className="bar-grow"
+                  x={cx}
+                  y={y(s.rushingTaps)}
+                  width={bar}
+                  height={y(0) - y(s.rushingTaps)}
+                  rx={2}
+                  fill={fill}
+                />
                 {s.rushingHoldouts > 0 && (
                   <rect
+                    className="bar-grow"
                     x={cx + 0.75}
                     y={y(s.rushingTaps + s.rushingHoldouts) + 0.75}
                     width={bar - 1.5}

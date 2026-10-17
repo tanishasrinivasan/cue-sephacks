@@ -58,7 +58,11 @@ export function CueSays({ label, children }: { label: string; children: ReactNod
 export function TapCount({ taps, caption }: { taps: number; caption: string }) {
   return (
     <div className="flex items-baseline gap-3">
-      <span className="text-display-lg-m font-semibold tabular-nums text-[var(--area-pace)] sm:text-display-lg">
+      {/* Keyed by the count, so each new tap ticks it once. */}
+      <span
+        key={taps}
+        className="tap-tick inline-block text-display-lg-m font-semibold tabular-nums text-[var(--area-pace)] sm:text-display-lg"
+      >
         {taps}
       </span>
       <span className="text-body-sm text-muted">

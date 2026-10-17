@@ -209,3 +209,49 @@ body {
     stroke-dashoffset: 0;
   }
 }
+
+/*
+ * Taps as rings (DESIGN.md §11): on /learning and the "Cue learns you" card, a tap, or a step Cue
+ * reaches, spreads out once like the ring from the motor; a tap count ticks; Act 3's bars grow as
+ * each session runs. All answer something that just happened, and all are off under reduced motion.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .tap-ring {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: tap-ring 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .tap-tick {
+    animation: tap-tick 360ms cubic-bezier(0.3, 0, 0.2, 1);
+  }
+  .bar-grow {
+    transform-box: fill-box;
+    transform-origin: bottom;
+    animation: bar-grow 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tap-ring {
+    display: none;
+  }
+}
+@keyframes tap-ring {
+  from {
+    transform: scale(0.4);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+@keyframes tap-tick {
+  35% {
+    transform: scale(1.22);
+  }
+}
+@keyframes bar-grow {
+  from {
+    transform: scaleY(0);
+  }
+}
