@@ -1,13 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { feedbackStory } from "@/lib/learning/demo";
+import { feedbackStory, rushingShare, type Trace } from "@/lib/learning/demo";
 import type { Rating } from "@/lib/learning/types";
 import PaceChart, { PaceLegend } from "./PaceChart";
 import SessionSummary from "./SessionSummary";
 import { useTimeline } from "./hooks";
-import { ARRIVE, CARD, CHIP, paceDomain, span } from "./shared";
-import { Act, CueSays, SlowDownShift } from "./ui";
+import { ARRIVE, CARD, CHIP, paceDomain, rushingTaps, span } from "./shared";
+import { Act, CueSays, Result, SlowDownShift } from "./ui";
 
 const RATINGS: { value: Rating; label: string }[] = [
   { value: "helpful", label: "Helpful" },
@@ -37,7 +37,7 @@ export default function ActTwo() {
       n={2}
       title="Tell Cue once"
       steps={["Adapt"]}
-      lede="Someone who rushes in bursts gets slow-down taps through a conversation. Afterwards Cue asks how they were, and one answer changes the next session. The simulated speaker reacts to each tap, so a burst Cue lets pass can run on longer."
+      lede="Someone who rushes in bursts gets slow-down taps. Afterwards, pick how the taps felt and watch the next session change."
     >
       <div className="flex max-w-3xl flex-col gap-3">
         <div className={CARD}>
@@ -101,9 +101,31 @@ export default function ActTwo() {
                 <PaceChart trace={story.second} domain={domain} progress={p2} rings />
               </div>
             </div>
+            {elapsed >= PLAY_MS && <Outcome first={first} second={story.second} />}
           </div>
         )}
       </div>
     </Act>
+  );
+}
+
+const pct = (share: number | null) => `${Math.round((share ?? 0) * 100)}%`;
+
+function Outcome({ first, second }: { first: Trace; second: Trace }) {
+  const [a, b] = [rushingTaps(first), rushingTaps(second)];
+  return (
+    <div className={ARRIVE}>
+      <Result
+        title={
+          b < a
+            ? `One answer, and the next session had ${a - b} fewer slow-down ${a - b === 1 ? "tap" : "taps"}.`
+            : "Helpful, so Cue kept tapping the same way."
+        }
+        rows={[
+          { label: "Slow-down taps", before: `${a}`, after: `${b}` },
+          { label: "Time rushing", before: pct(rushingShare(first)), after: pct(rushingShare(second)) },
+        ]}
+      />
+    </div>
   );
 }

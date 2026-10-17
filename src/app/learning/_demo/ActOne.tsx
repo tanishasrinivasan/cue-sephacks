@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { quickTalkerStory, type TwoSessions } from "@/lib/learning/demo";
+import { quickTalkerStory, rushingShare, type TwoSessions } from "@/lib/learning/demo";
 import PaceChart, { PaceLegend } from "./PaceChart";
 import SessionSummary from "./SessionSummary";
 import { useTimeline } from "./hooks";
-import { ARRIVE, BUTTON, CARD, paceDomain, span } from "./shared";
-import { Act, CueSays, SlowDownShift } from "./ui";
+import { ARRIVE, BUTTON, CARD, paceDomain, rushingTaps, span } from "./shared";
+import { Act, CueSays, Result, SlowDownShift } from "./ui";
 
 /** Play, in milliseconds: session 1 plays out, Cue updates, then the same script again. */
 const T = { first: [0, 2600], update: 2900, second: [3400, 2600] } as const;
@@ -26,7 +26,7 @@ export default function ActOne() {
       n={1}
       title="Same speech, different coaching"
       steps={["Remember", "Adapt"]}
-      lede="A naturally quick talker, fast but steady, gives the same speech twice. In session 1 Cue judges them against a standard pace; by session 2 it has learned theirs."
+      lede="A naturally fast but steady talker gives the same speech twice. Watch the slow-down taps."
     >
       <button type="button" className={BUTTON} onClick={start}>
         <span aria-hidden>▶</span> {story ? "Play again" : "Play"}
@@ -35,6 +35,8 @@ export default function ActOne() {
     </Act>
   );
 }
+
+const pct = (share: number | null) => `${Math.round((share ?? 0) * 100)}%`;
 
 function Story({ story, elapsed }: { story: TwoSessions; elapsed: number }) {
   const domain = paceDomain(story.first, story.second);
@@ -75,6 +77,22 @@ function Story({ story, elapsed }: { story: TwoSessions; elapsed: number }) {
           <div className="mt-4">
             <PaceChart trace={story.second} domain={domain} progress={p2} rings />
           </div>
+        </div>
+      )}
+      {elapsed >= TOTAL && (
+        <div className={ARRIVE}>
+          <Result
+            title="Same speech. Once Cue knew their pace, it stopped telling them to slow down."
+            rows={[
+              { label: "Slow-down taps", before: `${rushingTaps(story.first)}`, after: `${rushingTaps(story.second)}` },
+              { label: "Time rushing", before: pct(rushingShare(story.first)), after: pct(rushingShare(story.second)) },
+              {
+                label: "Slow-down point, wpm",
+                before: `${story.first.limit[0].wpm}`,
+                after: `${story.second.limit[0].wpm}`,
+              },
+            ]}
+          />
         </div>
       )}
     </div>

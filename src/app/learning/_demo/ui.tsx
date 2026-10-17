@@ -35,10 +35,13 @@ export function Act({
           <StepBadge key={s} step={s} />
         ))}
       </div>
-      <h2 id={`act-${n}`} className="mt-3 text-heading-2-m font-semibold tracking-[-0.02em] sm:text-heading-2">
+      <h2
+        id={`act-${n}`}
+        className="mt-3 scroll-mt-8 text-heading-2-m font-semibold tracking-[-0.02em] sm:text-display-lg-m"
+      >
         {title}
       </h2>
-      <p className="mt-3 max-w-2xl text-body text-muted">{lede}</p>
+      <p className="mt-3 max-w-2xl text-body-lg-m text-muted sm:text-body-lg">{lede}</p>
       <div className="mt-6">{children}</div>
     </section>
   );
@@ -64,5 +67,32 @@ export function SlowDownShift({ first, second }: { first: Trace; second: Trace }
       </span>{" "}
       words a minute
     </p>
+  );
+}
+
+/**
+ * What an act shows, large enough to read from across a room: one line, then each measure
+ * before and after.
+ */
+export function Result({ title, rows }: { title: string; rows: { label: string; before: string; after: string }[] }) {
+  return (
+    <div className="rounded-card border-2 border-cue bg-surface p-5 sm:p-7">
+      <p className="text-label font-semibold text-cue-ink">The result</p>
+      <p className="mt-1 text-title-m font-semibold sm:text-heading-3">{title}</p>
+      <dl className="mt-4 grid gap-4 sm:grid-cols-3">
+        {rows.map((r) => (
+          <div key={r.label}>
+            <dt className="text-body-sm text-muted">{r.label}</dt>
+            <dd className="mt-1 flex items-baseline gap-2 tabular-nums">
+              <span className="text-heading-3-m text-muted sm:text-heading-3">{r.before}</span>
+              <span aria-label="became" className="text-title text-cue-ink">
+                →
+              </span>
+              <span className="text-display-lg-m font-semibold tracking-[-0.02em]">{r.after}</span>
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
   );
 }

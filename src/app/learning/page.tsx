@@ -12,6 +12,13 @@ export const metadata: Metadata = {
   description: "Cue learns from every session and changes how it coaches you. Three stories, computed live.",
 };
 
+/** The three acts, as shortcuts for whoever is presenting. */
+const WATCH = [
+  { href: "#act-1", title: "Same speech, different coaching", line: "Cue learns your natural pace." },
+  { href: "#act-2", title: "Tell Cue once", line: "One answer changes the next session." },
+  { href: "#act-3", title: "Cue tests itself", line: "It checks its taps and keeps what works." },
+];
+
 // The continuous-learning demo. Every number on it comes from src/lib/learning/demo.ts, which runs
 // simulated speakers through the real engine; this page only draws them.
 export default function LearningDemoPage() {
@@ -39,9 +46,25 @@ export default function LearningDemoPage() {
         <p className="text-label font-medium uppercase tracking-[0.08em] text-cue-ink">Continuous learning</p>
         <h1 className="mt-3 text-display-xl-m font-semibold tracking-[-0.03em] sm:text-display-xl">Cue learns you.</h1>
         <p className="mt-5 max-w-2xl text-body-lg-m text-muted sm:text-body-lg">
-          Every session teaches Cue something about how you speak, and the next session is coached differently because
-          of it. Not more data about your habits: better coaching, one session at a time.
+          Cue is a speaking coach that taps you behind the ear. It learns from every session and changes how it coaches
+          you next time.
         </p>
+        <ol className="mt-8 grid gap-3 sm:grid-cols-3">
+          {WATCH.map((w, k) => (
+            <li key={w.href}>
+              <a
+                href={w.href}
+                className="block h-full rounded-card border border-line bg-surface p-4 hover:border-cue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cue"
+              >
+                <span>
+                  <span className="block text-label font-semibold text-cue-ink">Act {k + 1}</span>
+                  <span className="mt-1 block text-body font-semibold">{w.title}</span>
+                  <span className="block text-body-sm text-muted">{w.line}</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ol>
       </header>
       <Loop />
       <ActOne />

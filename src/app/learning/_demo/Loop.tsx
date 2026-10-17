@@ -1,18 +1,19 @@
 import { STEPS, type Step } from "./shared";
 
 const TEXT: Record<Step, string> = {
-  Observe: "Each session ends as numbers: pace, fillers, pauses, turns. No audio, no words kept.",
-  Discover: "Patterns that hold across sessions, checked with a sign test, not a hunch.",
-  Remember: "A personal profile in your browser: your pace, your preferences, what worked.",
-  Adapt: "The coaching plan is rebuilt from the profile, and the live engine reads it.",
-  Evaluate: "Taps are compared with randomly held-back taps, and strategy against strategy.",
-  Improve: "Cue adopts what works, steps back where you've improved, and picks a new focus.",
+  Observe: "Each session becomes numbers. No audio is kept.",
+  Discover: "Finds habits that repeat across sessions.",
+  Remember: "Keeps a profile of you, in your browser.",
+  Adapt: "Rebuilds how it will coach you next time.",
+  Evaluate: "Checks whether its taps actually help.",
+  Improve: "Keeps what works and drops what doesn't.",
 };
 
 /** The six steps every session goes round, ending where the next session starts. */
 export default function Loop() {
   return (
-    <div className="mt-10">
+    <div className="mt-14">
+      <p className="mb-4 text-body-lg-m font-semibold sm:text-body-lg">Every session goes round the same loop:</p>
       <ol className="grid gap-6 lg:grid-cols-6 lg:gap-4">
         {STEPS.map((s, k) => (
           <li key={s} className="relative rounded-card border border-line bg-surface p-4">

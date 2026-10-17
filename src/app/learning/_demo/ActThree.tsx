@@ -1,40 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { experimentStory, type ManySessions, type Phase } from "@/lib/learning/demo";
+import { experimentStory, type ManySessions } from "@/lib/learning/demo";
 import SessionStrip from "./SessionStrip";
 import TapsChart, { TapsLegend } from "./TapsChart";
 import { useTimeline } from "./hooks";
 import { ARRIVE, BUTTON, CARD } from "./shared";
-import { Act, CueSays } from "./ui";
+import Quote from "./Quote";
+import { Act, Result } from "./ui";
 
 /** Each session takes this long to appear, in milliseconds. */
 const PER_SESSION = 120;
 const SESSIONS = 20;
-
-function PhaseCard({ title, phase }: { title: string; phase: Phase }) {
-  return (
-    <div className={CARD}>
-      <p className="text-label font-semibold">
-        Sessions {phase.from}–{phase.to} · {title}
-      </p>
-      <dl className="mt-3 grid grid-cols-2 gap-3">
-        <div>
-          <dt className="text-caption text-muted">Taps a session</dt>
-          <dd className="text-heading-3-m font-semibold tabular-nums sm:text-heading-3">
-            {phase.tapsPerSession.toFixed(1)}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-caption text-muted">Time spent rushing</dt>
-          <dd className="text-heading-3-m font-semibold tabular-nums text-[var(--area-pace)] sm:text-heading-3">
-            {Math.round(phase.rushShare * 100)}%
-          </dd>
-        </div>
-      </dl>
-    </div>
-  );
-}
 
 export default function ActThree() {
   const [run, setRun] = useState<ManySessions | null>(null);
@@ -54,13 +31,25 @@ export default function ActThree() {
   const shown = Math.floor(elapsed / PER_SESSION) + 1;
   const ex = run?.experiment;
   const marks = run && ex ? [run.sessions[ex.started - 1], run.sessions[ex.settled - 1]] : [];
+  const steps = ex
+    ? [
+        {
+          at: ex.started - 1,
+          when: `Sessions 1–${ex.started}`,
+          title: "Checked whether its taps help",
+          quote: marks[0].update?.text,
+        },
+        { at: ex.started, when: `Sessions ${ex.started + 1}–${ex.settled}`, title: "Tried a sparser way of tapping" },
+        { at: ex.settled, when: `From session ${ex.settled + 1}`, title: "Kept it", quote: marks[1].update?.text },
+      ]
+    : [];
 
   return (
     <Act
       n={3}
       title="Cue tests itself"
       steps={["Evaluate", "Improve"]}
-      lede="A slow-down tap is only worth sending if it helps. So Cue holds back about one tap in five at random and compares. When its taps aren't beating the held-back ones, it tries another way of tapping, and keeps whichever works."
+      lede="Cue holds back some taps at random to check its taps really help. Run 20 sessions and watch it test, try something new, and decide."
     >
       <button type="button" className={BUTTON} onClick={start} disabled={busy}>
         <span aria-hidden>▶</span> {busy ? "Running 20 sessions…" : run ? "Run again" : "Run 20 sessions"}
@@ -77,29 +66,58 @@ export default function ActThree() {
             </div>
           </div>
           <TapsLegend />
-          <div className={CARD}>
-            <p className="text-label font-semibold">
-              Every session{" "}
-              <span className="font-normal text-muted">· time spent rushing; choose one to look inside</span>
-            </p>
-            <div className="mt-3">
-              <SessionStrip run={run} shown={shown} />
-            </div>
-          </div>
-          {marks
-            .filter((s) => shown > s.index)
-            .map((s) => (
-              <div key={s.index} className={ARRIVE}>
-                <CueSays label={`${s.update!.label} · after session ${s.index}`}>
-                  <p>{s.update!.text}</p>
-                </CueSays>
-              </div>
-            ))}
+          {/* What Cue did, in three steps, each appearing as the run reaches it. */}
+          <ol className="grid gap-3 sm:grid-cols-3">
+            {steps.map((st, k) =>
+              shown > st.at ? (
+                <li key={st.title} className={`${CARD} ${ARRIVE}`}>
+                  <span className="flex size-7 items-center justify-center rounded-full bg-cue text-label font-semibold text-on-cue">
+                    {k + 1}
+                  </span>
+                  <p className="mt-2 text-body-sm text-muted">{st.when}</p>
+                  <p className="text-title-m font-semibold">{st.title}</p>
+                  {st.quote && <Quote text={st.quote} />}
+                </li>
+              ) : (
+                <li
+                  key={st.title}
+                  aria-hidden
+                  className="hidden rounded-card border border-dashed border-line sm:block"
+                />
+              ),
+            )}
+          </ol>
           {shown >= SESSIONS && run.before && run.after && (
-            <div className={`grid gap-3 sm:grid-cols-2 ${ARRIVE}`}>
-              <PhaseCard title="tap after a few seconds" phase={run.before} />
-              <PhaseCard title="only longer stretches" phase={run.after} />
+            <div className={ARRIVE}>
+              <Result
+                title="Cue kept the way of tapping that worked just as well with less."
+                rows={[
+                  {
+                    label: "Taps a session",
+                    before: run.before.tapsPerSession.toFixed(1),
+                    after: run.after.tapsPerSession.toFixed(1),
+                  },
+                  {
+                    label: "Time rushing",
+                    before: `${Math.round(run.before.rushShare * 100)}%`,
+                    after: `${Math.round(run.after.rushShare * 100)}%`,
+                  },
+                ]}
+              />
             </div>
+          )}
+          {shown >= SESSIONS && (
+            <details className={`${CARD} group`}>
+              <summary className="cursor-pointer list-none text-label font-semibold focus-visible:outline-2 focus-visible:outline-cue">
+                <span className="mr-1 inline-block transition-transform group-open:rotate-90" aria-hidden>
+                  ›
+                </span>
+                Look inside each session
+              </summary>
+              <div className="mt-3">
+                <SessionStrip run={run} shown={shown} />
+              </div>
+            </details>
           )}
         </div>
       )}
