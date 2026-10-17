@@ -1,0 +1,366 @@
+@import "tailwindcss";
+
+/*
+ * Tokens from DESIGN.md §7 and §19. One accent family per composition: cobalt marks
+ * coaching cues and selected state; everything else is warm neutral.
+ */
+:root {
+  --bg: #f7f4ee; /* bone-50 */
+  --surface: #ffffff; /* white */
+  --surface-2: #eeeae3; /* stone-100 */
+  --line: #d5d0c8; /* stone-300 */
+  --text: #111111; /* ink-950 */
+  --muted: #5f5b56; /* stone-700: secondary text, passes AA on bone/white */
+  --neutral: #5f5b56; /* meters, confirmations (non-accent emphasis) */
+  --neutral-soft: rgba(159, 154, 147, 0.28); /* warm-gray-500 wash */
+  --cue: #2437d8; /* signal-cobalt */
+  --cue-soft: rgba(36, 55, 216, 0.1);
+  /*
+   * The report's area colors (CUE_CONTEXT.md decision 26): a rainbow, in order round the score
+   * ring. Checked with a palette validator on both themes' backgrounds: every neighboring pair
+   * is clearly apart for full color vision (worst 16), and the closest pair for red-green color
+   * blindness is orange beside green (7.1, where 8 is the target), which is why an area is
+   * always named and given an icon as well as a color.
+   */
+  --area-pauses: #f0382e; /* red */
+  --area-pace: #ff8a00; /* orange */
+  --area-volume: #34c759; /* green */
+  --area-fillers: #00a3e0; /* blue */
+  --area-pitch: #9b3fe8; /* violet */
+  /* Text on a vivid area color: ink in both themes, since every one of the five is bright enough for it. */
+  --on-area: #111111;
+}
+
+/* Dark mode (DESIGN.md §19): ink surfaces, bone text, warm gray and cobalt lifted for contrast. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111111; /* ink-950 */
+    --surface: #282725; /* ink-800 */
+    --surface-2: #33312e;
+    --line: #48453f;
+    --text: #f7f4ee; /* bone-50 */
+    --muted: #b9b4ac; /* warm gray, lifted */
+    --neutral: #c9c4bc;
+    --neutral-soft: rgba(201, 196, 188, 0.18);
+    --cue: #8c9bff; /* cobalt, lifted for contrast on ink (provisional) */
+    --cue-soft: rgba(140, 155, 255, 0.16);
+    /* The same rainbow, lifted for the dark background. */
+    --area-pauses: #ff453a;
+    --area-pace: #ff9f0a;
+    --area-volume: #30d158;
+    --area-fillers: #18a8f0;
+    --area-pitch: #8f5cf7;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-neutral: var(--neutral);
+  --color-neutral-soft: var(--neutral-soft);
+  --color-cue: var(--cue);
+  --color-cue-soft: var(--cue-soft);
+  /* The primary button and field outlines; landing themes below restyle them. */
+  --color-action: var(--action, var(--text));
+  --color-on-action: var(--on-action, var(--bg));
+  --color-field: var(--field-line, var(--line));
+  --radius-control: var(--landing-radius-control, 8px);
+  --radius-card: var(--landing-radius-card, 16px);
+  /* DESIGN.md §8: Geist with the documented fallback stacks. One family for UI and display. */
+  --font-sans: var(--font-geist-sans), "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-geist-sans), "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), "SFMono-Regular", Consolas, monospace;
+
+  /* DESIGN.md §8 type scale (size / line height). Mobile sizes apply below the sm breakpoint
+     via responsive classes, e.g. text-display-xl-m sm:text-display-xl. */
+  --text-display-xl: 72px;
+  --text-display-xl--line-height: 72px;
+  --text-display-xl-m: 48px;
+  --text-display-xl-m--line-height: 50px;
+  --text-display-lg: 56px;
+  --text-display-lg--line-height: 58px;
+  --text-display-lg-m: 40px;
+  --text-display-lg-m--line-height: 42px;
+  --text-heading-2: 32px;
+  --text-heading-2--line-height: 38px;
+  --text-heading-2-m: 26px;
+  --text-heading-2-m--line-height: 32px;
+  --text-heading-3: 24px;
+  --text-heading-3--line-height: 30px;
+  --text-heading-3-m: 22px;
+  --text-heading-3-m--line-height: 28px;
+  --text-title: 20px;
+  --text-title--line-height: 26px;
+  --text-title-m: 18px;
+  --text-title-m--line-height: 24px;
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+  --text-body-lg-m: 17px;
+  --text-body-lg-m--line-height: 27px;
+  --text-body: 16px;
+  --text-body--line-height: 24px;
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 20px;
+  --text-label: 13px;
+  --text-label--line-height: 16px;
+  --text-caption: 12px;
+  --text-caption--line-height: 16px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Haptic cues are drawn on the 3D device (src/app/DeviceModel.tsx), leaving the motor in their rhythm. */
+
+/* Simulated touch pad on the device: a ring fills while held, reaching full at the 1.5 s long press. */
+@keyframes press-fill {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.touch-pad .press-ring {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+.touch-pad.pressing .press-ring {
+  animation: press-fill 1.5s linear forwards;
+}
+
+/* Rhythm glyph in the cue legend lights up in time with the pattern. */
+@keyframes beat {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  10%,
+  60% {
+    opacity: 1;
+  }
+}
+.cue-playing .beat {
+  animation: beat 0.5s ease-out 1;
+  animation-delay: var(--beat-delay, 0ms);
+}
+
+/*
+ * The report's graphics arrive once, calmly (DESIGN.md §11: 300–450 ms for reflections): lines
+ * draw from the start of the session to its end, bars grow from their baseline.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .report-draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: report-draw 450ms ease-out forwards;
+  }
+  .report-grow {
+    transform-origin: left;
+    animation: report-grow 400ms ease-out both;
+  }
+}
+/* A cue arrives on screen with one small rise, not a flash. */
+@media (prefers-reduced-motion: no-preference) {
+  .cue-card {
+    animation: cue-card-in 220ms ease-out;
+  }
+}
+@keyframes cue-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+}
+@keyframes report-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes report-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cue-playing .beat,
+  .touch-pad.pressing .press-ring {
+    animation: none !important;
+  }
+  .touch-pad.pressing .press-ring {
+    stroke-dashoffset: 0;
+  }
+}
+
+/*
+ * Landing pages (/for/<market>): one look per audience, at the owner's request (DESIGN.md §25,
+ * 2026-10-11). Colors are set on :root so the page behind the content matches; type and shape
+ * are set on the page's own wrapper. Each look is fixed: it doesn't follow the visitor's
+ * light or dark setting. Text and control colors are checked for WCAG AA contrast.
+ */
+
+/* Speakers and coaches: a dark stage. Midnight navy, ivory, a gold button, an editorial serif. */
+:root:has([data-landing="speaking"]) {
+  color-scheme: dark;
+  --bg: #101b33;
+  --surface: #1a2848;
+  --surface-2: #0a1326;
+  --line: #33456b;
+  --field-line: #7c8db5;
+  --text: #f6f1e7;
+  --muted: #c3cce0;
+  --cue: #e9c46a;
+  --cue-soft: rgba(233, 196, 106, 0.2);
+  --action: #e9c46a;
+  --on-action: #101b33;
+}
+[data-landing="speaking"] {
+  --landing-display: var(--font-newsreader), Georgia, serif;
+  --landing-body: var(--font-geist-sans), "Helvetica Neue", Arial, sans-serif;
+  --landing-display-weight: 500;
+  --landing-display-tracking: -0.02em;
+  --landing-hero-size: 68px;
+  --landing-hero-size-m: 44px;
+  --landing-radius-control: 2px;
+  --landing-radius-card: 4px;
+}
+
+/* Sales: a scoreboard. White, ink, hot orange-red, heavy condensed capitals. */
+:root:has([data-landing="sales"]) {
+  color-scheme: light;
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f0f2f5;
+  --line: #d3d9e0;
+  --field-line: #8a94a3;
+  --text: #0d1420;
+  --muted: #4a5565;
+  --cue: #d63a08;
+  --cue-soft: rgba(214, 58, 8, 0.14);
+  --action: #d63a08;
+  --on-action: #ffffff;
+}
+[data-landing="sales"] {
+  --landing-display: var(--font-archivo), "Arial Narrow", Arial, sans-serif;
+  --landing-body: var(--font-archivo), Arial, sans-serif;
+  --landing-display-weight: 800;
+  --landing-display-tracking: -0.015em;
+  --landing-display-stretch: 78%;
+  --landing-hero-size: 64px;
+  --landing-hero-size-m: 42px;
+  --landing-hero-leading: 0.96;
+  --landing-hero-case: uppercase;
+  --landing-hero-word-spacing: 0.12em;
+  --landing-radius-control: 6px;
+  --landing-radius-card: 10px;
+}
+
+/* Schools: a classroom. Soft green, marker yellow, a typeface made for reading, round corners. */
+:root:has([data-landing="schools"]) {
+  color-scheme: light;
+  --bg: #f3f8f3;
+  --surface: #ffffff;
+  --surface-2: #fbebb5;
+  --line: #c5d8ca;
+  --field-line: #7d978a;
+  --text: #14342b;
+  --muted: #47625a;
+  --cue: #1e6b52;
+  --cue-soft: rgba(30, 107, 82, 0.16);
+  --action: #1e6b52;
+  --on-action: #ffffff;
+}
+[data-landing="schools"] {
+  --landing-display: var(--font-lexend), "Helvetica Neue", Arial, sans-serif;
+  --landing-body: var(--font-lexend), "Helvetica Neue", Arial, sans-serif;
+  --landing-display-weight: 600;
+  --landing-display-tracking: -0.025em;
+  --landing-hero-size: 54px;
+  --landing-hero-size-m: 36px;
+  --landing-hero-leading: 1.1;
+  --landing-radius-control: 14px;
+  --landing-radius-card: 24px;
+}
+
+/* English learners: clear and open. Blue-white, one clear blue, a typeface built for legibility. */
+:root:has([data-landing="english"]) {
+  color-scheme: light;
+  --bg: #f4f8fd;
+  --surface: #ffffff;
+  --surface-2: #e1ecfa;
+  --line: #c6d6ea;
+  --field-line: #7f93ad;
+  --text: #0b2545;
+  --muted: #43597a;
+  --cue: #0b5fd9;
+  --cue-soft: rgba(11, 95, 217, 0.12);
+  --action: #0b5fd9;
+  --on-action: #ffffff;
+}
+[data-landing="english"] {
+  --landing-display: var(--font-atkinson), Verdana, Arial, sans-serif;
+  --landing-body: var(--font-atkinson), Verdana, Arial, sans-serif;
+  --landing-display-weight: 700;
+  --landing-display-tracking: -0.02em;
+  --landing-hero-size: 58px;
+  --landing-hero-size-m: 40px;
+  --landing-radius-control: 10px;
+  --landing-radius-card: 18px;
+}
+
+/* Interviews: calm before a big moment. Lilac, violet, a characterful grotesque, pill shapes. */
+:root:has([data-landing="interviews"]) {
+  color-scheme: light;
+  --bg: #f3f0fc;
+  --surface: #ffffff;
+  --surface-2: #e6e0f8;
+  --line: #cfc6ee;
+  --field-line: #8d83b8;
+  --text: #1b1438;
+  --muted: #51487a;
+  --cue: #5b33e6;
+  --cue-soft: rgba(91, 51, 230, 0.13);
+  --action: #5b33e6;
+  --on-action: #ffffff;
+}
+[data-landing="interviews"] {
+  --landing-display: var(--font-bricolage), "Helvetica Neue", Arial, sans-serif;
+  --landing-body: var(--font-geist-sans), "Helvetica Neue", Arial, sans-serif;
+  --landing-display-weight: 700;
+  --landing-display-tracking: -0.035em;
+  --landing-hero-size: 66px;
+  --landing-hero-size-m: 44px;
+  --landing-hero-leading: 1;
+  --landing-radius-control: 999px;
+  --landing-radius-card: 28px;
+}
+
+[data-landing] {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--landing-body);
+}
+[data-landing] .landing-display {
+  font-family: var(--landing-display);
+  font-weight: var(--landing-display-weight, 600);
+  font-stretch: var(--landing-display-stretch, normal);
+  letter-spacing: var(--landing-display-tracking, -0.02em);
+}
+[data-landing] .landing-hero-title {
+  font-size: var(--landing-hero-size-m, 40px);
+  line-height: var(--landing-hero-leading, 1.05);
+  text-transform: var(--landing-hero-case, none);
+  word-spacing: var(--landing-hero-word-spacing, normal);
+}
+@media (min-width: 640px) {
+  [data-landing] .landing-hero-title {
+    font-size: var(--landing-hero-size, 56px);
+  }
+}
