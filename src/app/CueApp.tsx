@@ -30,6 +30,7 @@ import { confirmTones, cueTones, EarconPlayer, setAudioSession } from "@/lib/cue
 import { scaleVibration, type CoachingPlan } from "@/lib/cue/plan";
 import { stageOf, STAGE_LABEL } from "@/lib/learning/coaching";
 import { CheckIn, CueUpdateCard, FocusCard, LearnedView, LearningTimeline, TunedToYou } from "./learning/LearningViews";
+import { LearningMemory } from "./learning/LearningMemory";
 import { useLearning } from "./learning/useLearning";
 
 const LABEL: Record<CueKind, string> = {
@@ -941,6 +942,8 @@ export default function CueApp() {
           {/* After a session: what Cue learned or changed (rarely), then a short check-in. */}
           {!busy && <CueUpdateCard learning={learning} />}
           {!busy && learning.justEnded && <CheckIn learning={learning} session={learning.justEnded} />}
+          {/* The learning loop, visible from the first visit (SEPHacks: continual learning). */}
+          {!busy && <LearningMemory learning={learning} />}
           {!busy && <FocusCard learning={learning} />}
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-4">
