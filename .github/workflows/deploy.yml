@@ -1,0 +1,47 @@
+name: Deploy
+
+# Deploys main to Vercel with the Vercel CLI, so the project needs no Vercel GitHub app on this
+# repo. Vercel builds it; the token is a Vercel access token for the account that owns the project,
+# stored as the VERCEL_TOKEN repository secret. Until it's set, the job skips.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  VERCEL_SCOPE: samanthajwilliamson-2541
+  VERCEL_PROJECT: cue-sephacks
+  VERCEL_CLI: vercel@64.5.0
+
+jobs:
+  deploy:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Skip without a token
+        if: env.VERCEL_TOKEN == ''
+        run: echo "::notice::Add the VERCEL_TOKEN repository secret to deploy."
+      - uses: actions/checkout@v5
+        if: env.VERCEL_TOKEN != ''
+      - uses: actions/setup-node@v5
+        if: env.VERCEL_TOKEN != ''
+        with:
+          node-version-file: .nvmrc
+      - name: Link the Vercel project
+        if: env.VERCEL_TOKEN != ''
+        run: npx --yes "$VERCEL_CLI" link --yes --project "$VERCEL_PROJECT" --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN"
+      - name: Deploy to production
+        if: env.VERCEL_TOKEN != ''
+        run: |
+          url=$(npx --yes "$VERCEL_CLI" deploy --prod --yes --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN")
+          echo "::notice::Deployed $url"
