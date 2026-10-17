@@ -4,7 +4,7 @@
 
 SEPHacks 2026 · Tracks: Continual Learning (Grand Tech), Design, Scale, Agents
 
-- **Live app:** [add link] (the learning views are at `/learning`)
+- **Live app:** [cue-sephacks.vercel.app](https://cue-sephacks.vercel.app) (the continuous-learning demo is at [`/learning`](https://cue-sephacks.vercel.app/learning))
 - **Demo video:** [add link]
 - **Team:** Tanisha Srinivasan, Sam Williamson, Alene Abdullian
 
