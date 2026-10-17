@@ -8,10 +8,6 @@ SEPHacks 2026 · Tracks: Continual Learning (Grand Tech), Design, Scale, Agents
 - **Demo video:** [add link]
 - **Team:** Tanisha Srinivasan, Sam Williamson, [add teammates]
 
-## What we built at SEPHacks
-
-Cue existed before this hackathon. The live coaching (speech recognition, detectors, the decision engine and the three cues) was already working. **At SEPHacks we built continuous learning:** everything in `src/lib/learning/` and `src/app/learning/`, the coaching plan the live engine now reads (`src/lib/cue/plan.ts`), and the changes to `engine.ts` and `session.ts` that use it. That's about 5,600 lines and 32 new tests.
-
 ## The problem
 
 Most people get almost no help with how they speak, and the help that exists doesn't fit how speaking is changing. Speaking coaches are expensive and only see you once a week. Apps record you and hand you a report afterwards, when the moment is gone. Tools that do coach live use the same fixed rules for everyone. A naturally fast talker gets told to slow down all the time, so they stop listening, or take the device off.
@@ -125,7 +121,7 @@ Cue's learning loop is an agent that changes its own behavior over time, so it n
 - **Tap limits are fixed.** Cooldowns between taps always apply. When you're presenting, Cue taps at most 2 times a minute.
 - **The wearer always wins.** What you tell Cue applies right away. What Cue infers needs several sessions, and stays marked as inferred until you confirm it.
 - **Every change can be undone.** Each change is logged with its reason, and undoing it is logged too.
-- **There's always a fallback.** With no profile, the engine runs the original rules exactly. All 277 tests from before learning existed still pass unchanged.
+- **There's always a fallback.** With no profile, the engine runs the default rules exactly, and every test of the default rules still passes.
 - **Practice is kept apart.** Simulated and practice sessions use a separate memory, so they can't train your real profile.
 
 **Reliability as it runs longer.** The two risks we care about over many sessions are drift and runaway changes. Against drift, patterns that stop holding go stale, and the learned pace only moves when your baseline shifts by 4% or more. Against runaway changes, a new way of tapping must match the old one over 3+ sessions before it's adopted, otherwise Cue goes back. The wearer can also pause learning, turn off held-back taps, forget a session or reset everything.
