@@ -182,6 +182,22 @@ Learning is what makes each step stronger. The longer someone uses Cue, the bett
 | `src/lib/cue/engine.ts`                                | The live decision engine: "would a tap help right now?"       |
 | `src/lib/learning/__tests__/scenarios.test.ts`         | The two-session and 20-session demos                          |
 | `src/app/learning/`                                    | What the wearer sees: Your focus, Cue updated, timeline       |
+| `hardware/devboard/`                                   | The dev board: KiCad schematic and layout, JLCPCB fab files   |
+| `hardware/README.md`                                   | The hardware: chips, boards, enclosure                        |
+
+## Hardware
+
+`hardware/` has the device itself:
+
+- **Dev board** (`hardware/devboard/`): a 33 × 21 mm, 4-layer board in KiCad with the real chips. Fab files for JLCPCB are in `fab/`.
+  - Bluetooth and processor: Nordic nRF54L15 (Ezurio BL54L15 module)
+  - Power and charging: Nordic nPM1300
+  - Microphone: TDK T5838
+  - Bone-conduction sensor: ST LSM6DSV16BX
+  - Tap: TI DRV2605L haptic driver with an LRA motor
+- **Enclosure** (`hardware/enclosure/`): the behind-the-ear body and a wearable test version for the dev board.
+- **Breadboard kit** (`hardware/kit/`): off-the-shelf parts wired up to test bone conduction before the custom board arrives.
+- **Final device electronics** (`hardware/rev0/`): netlist and parts list for the small version.
 
 ## Run it
 
