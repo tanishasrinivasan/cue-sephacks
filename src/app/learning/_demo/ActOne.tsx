@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { quickTalkerStory, type TwoSessions } from "@/lib/learning/demo";
 import PaceChart, { PaceLegend } from "./PaceChart";
+import SessionSummary from "./SessionSummary";
 import { useTimeline } from "./hooks";
-import { ARRIVE, BUTTON, CARD, paceDomain, rushingTaps, span } from "./shared";
-import { Act, CueSays, SlowDownShift, TapCount } from "./ui";
+import { ARRIVE, BUTTON, CARD, paceDomain, span } from "./shared";
+import { Act, CueSays, SlowDownShift } from "./ui";
 
 /** Play, in milliseconds: session 1 plays out, Cue updates, then the same script again. */
 const T = { first: [0, 2600], update: 2900, second: [3400, 2600] } as const;
@@ -42,9 +43,11 @@ function Story({ story, elapsed }: { story: TwoSessions; elapsed: number }) {
   return (
     <div className="mt-6 flex max-w-3xl flex-col gap-3" aria-live="polite">
       <div className={CARD}>
-        <p className="text-label font-semibold">Session 1</p>
-        <div className="mt-3">
-          <TapCount taps={rushingTaps(story.first, p1)} caption="Cue doesn't know them yet" />
+        <p className="text-label font-semibold">
+          Session 1 <span className="font-normal text-muted">· Cue doesn&rsquo;t know them yet</span>
+        </p>
+        <div className="mt-4">
+          <SessionSummary trace={story.first} progress={p1} />
         </div>
         <div className="mt-4">
           <PaceChart trace={story.first} domain={domain} progress={p1} rings />
@@ -63,9 +66,11 @@ function Story({ story, elapsed }: { story: TwoSessions; elapsed: number }) {
       )}
       {elapsed >= T.second[0] && (
         <div className={`${CARD} ${ARRIVE}`}>
-          <p className="text-label font-semibold">Session 2 · same speaker, same script</p>
-          <div className="mt-3">
-            <TapCount taps={rushingTaps(story.second, p2)} caption="Cue knows their pace" />
+          <p className="text-label font-semibold">
+            Session 2 <span className="font-normal text-muted">· same script, and Cue knows their pace</span>
+          </p>
+          <div className="mt-4">
+            <SessionSummary trace={story.second} progress={p2} />
           </div>
           <div className="mt-4">
             <PaceChart trace={story.second} domain={domain} progress={p2} rings />

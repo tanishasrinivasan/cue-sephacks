@@ -4,9 +4,10 @@ import { useMemo, useState } from "react";
 import { feedbackStory } from "@/lib/learning/demo";
 import type { Rating } from "@/lib/learning/types";
 import PaceChart, { PaceLegend } from "./PaceChart";
+import SessionSummary from "./SessionSummary";
 import { useTimeline } from "./hooks";
-import { ARRIVE, CARD, CHIP, paceDomain, rushingTaps, span } from "./shared";
-import { Act, CueSays, SlowDownShift, TapCount } from "./ui";
+import { ARRIVE, CARD, CHIP, paceDomain, span } from "./shared";
+import { Act, CueSays, SlowDownShift } from "./ui";
 
 const RATINGS: { value: Rating; label: string }[] = [
   { value: "helpful", label: "Helpful" },
@@ -40,9 +41,11 @@ export default function ActTwo() {
     >
       <div className="flex max-w-3xl flex-col gap-3">
         <div className={CARD}>
-          <p className="text-label font-semibold">Session 1</p>
-          <div className="mt-3">
-            <TapCount taps={rushingTaps(first)} caption="before any feedback" />
+          <p className="text-label font-semibold">
+            Session 1 <span className="font-normal text-muted">· before any feedback</span>
+          </p>
+          <div className="mt-4">
+            <SessionSummary trace={first} />
           </div>
           <div className="mt-4">
             <PaceChart trace={first} domain={domain} />
@@ -88,9 +91,11 @@ export default function ActTwo() {
               </div>
             )}
             <div className={CARD}>
-              <p className="text-label font-semibold">Session 2 · same speaker, same script</p>
-              <div className="mt-3">
-                <TapCount taps={rushingTaps(story.second, p2)} caption="after one answer" />
+              <p className="text-label font-semibold">
+                Session 2 <span className="font-normal text-muted">· same script, after one answer</span>
+              </p>
+              <div className="mt-4">
+                <SessionSummary trace={story.second} progress={p2} />
               </div>
               <div className="mt-4">
                 <PaceChart trace={story.second} domain={domain} progress={p2} rings />

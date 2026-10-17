@@ -79,6 +79,26 @@ export function traceOf(sim: SimulatedSession, plan: CoachingPlan | null): Trace
   };
 }
 
+/** The slow-down point in force at a moment, words a minute (it steps where a session learns a pace). */
+export function limitAt(trace: Trace, t: number): number {
+  let wpm = trace.limit[0].wpm;
+  for (const p of trace.limit) if (p.t <= t) wpm = p.wpm;
+  return wpm;
+}
+
+/** Share of a session's pace readings above the slow-down point in force, up to `until` seconds. */
+export function rushingShare(trace: Trace, until = trace.duration): number | null {
+  const pts = trace.pace.filter((p) => p.t <= until);
+  if (!pts.length) return null;
+  return pts.filter((p) => p.wpm > limitAt(trace, p.t)).length / pts.length;
+}
+
+/** The middle pace reading of a session, words a minute. */
+export function typicalPace(trace: Trace): number {
+  const w = trace.pace.map((p) => p.wpm).sort((a, b) => a - b);
+  return w[w.length >> 1];
+}
+
 export interface TwoSessions {
   first: Trace;
   second: Trace;

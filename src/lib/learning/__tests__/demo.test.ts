@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { experimentStory, feedbackStory, quickTalkerStory } from "../demo";
+import { experimentStory, feedbackStory, quickTalkerStory, rushingShare } from "../demo";
 
 // The /learning demo page tells these stories from live computation; these checks keep them true.
 describe("demo stories", () => {
@@ -13,6 +13,13 @@ describe("demo stories", () => {
     const pace = s.first.pace.map((p) => p.wpm).sort((a, b) => a - b);
     const said = Number(s.update!.text.match(/about (\d+)/)![1]);
     expect(Math.abs(pace[pace.length >> 1] - said)).toBeLessThan(10);
+  });
+
+  it("act 1: rushing against a standard pace, none against their own", () => {
+    const s = quickTalkerStory();
+    expect(rushingShare(s.first)).toBeGreaterThan(0.1);
+    expect(rushingShare(s.second)).toBe(0);
+    expect(rushingShare(s.first, 0)).toBeNull();
   });
 
   it("act 2: after 'too many', fewer slow-down taps for the same speech", () => {

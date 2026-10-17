@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { experimentStory, type ManySessions, type Phase } from "@/lib/learning/demo";
+import SessionStrip from "./SessionStrip";
 import TapsChart, { TapsLegend } from "./TapsChart";
 import { useTimeline } from "./hooks";
 import { ARRIVE, BUTTON, CARD } from "./shared";
@@ -76,6 +77,15 @@ export default function ActThree() {
             </div>
           </div>
           <TapsLegend />
+          <div className={CARD}>
+            <p className="text-label font-semibold">
+              Every session{" "}
+              <span className="font-normal text-muted">· time spent rushing; choose one to look inside</span>
+            </p>
+            <div className="mt-3">
+              <SessionStrip run={run} shown={shown} />
+            </div>
+          </div>
           {marks
             .filter((s) => shown > s.index)
             .map((s) => (

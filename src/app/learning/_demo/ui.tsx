@@ -54,26 +54,6 @@ export function CueSays({ label, children }: { label: string; children: ReactNod
   );
 }
 
-/** A session's slow-down tap count, the number the act turns on. */
-export function TapCount({ taps, caption }: { taps: number; caption: string }) {
-  return (
-    <div className="flex items-baseline gap-3">
-      {/* Keyed by the count, so each new tap ticks it once. */}
-      <span
-        key={taps}
-        className="tap-tick inline-block text-display-lg-m font-semibold tabular-nums text-[var(--area-pace)] sm:text-display-lg"
-      >
-        {taps}
-      </span>
-      <span className="text-body-sm text-muted">
-        slow-down {taps === 1 ? "tap" : "taps"}
-        <br />
-        {caption}
-      </span>
-    </div>
-  );
-}
-
 /** Where slow-down taps started at the beginning of each session. */
 export function SlowDownShift({ first, second }: { first: Trace; second: Trace }) {
   return (
