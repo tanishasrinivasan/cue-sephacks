@@ -6,7 +6,7 @@ SEPHacks 2026 · Tracks: Continual Learning (Grand Tech), Design, Scale, Agents
 
 - **Live app:** [add link] (the learning views are at `/learning`)
 - **Demo video:** [add link]
-- **Team:** Tanisha Srinivasan, Sam Williamson, [add teammates]
+- **Team:** Tanisha Srinivasan, Sam Williamson, Alene Abdullian
 
 ## The problem
 
