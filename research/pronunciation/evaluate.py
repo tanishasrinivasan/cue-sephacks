@@ -56,12 +56,13 @@ def main():
 
     p = argparse.ArgumentParser()
     p.add_argument("csv", help="columns: file, word, target, clear (yes/no)")
-    p.add_argument("--backend", default="wav2vec", choices=["wav2vec", "azure"])
+    p.add_argument("--backend", default="wav2vec", choices=["wav2vec", "gop", "azure"])
     p.add_argument("--min-accuracy", type=float, default=0.8)
     a = p.parse_args()
 
     backend = make(a.backend)
     score = Score()
+    by_target: dict[str, Score] = {}
     with open(a.csv, newline="") as f:
         for row in csv.DictReader(f):
             r = compare(row["word"], expected_phonemes(row["word"]), backend.heard(row["file"], row["word"]),
@@ -69,11 +70,17 @@ def main():
             human = row["clear"].strip().lower() in ("yes", "y", "1", "true")
             model = r.clear(a.min_accuracy)
             score.add(human, model)
+            by_target.setdefault(row.get("target") or "-", Score()).add(human, model)
             mark = "" if human == model else "   <-- disagrees"
             print(f"{row['file']}: human {'clear' if human else 'unclear'}, "
                   f"model {'clear' if model else 'unclear'} (heard {' '.join(r.said)}){mark}")
     print()
     print(score.report())
+    if len(by_target) > 1:
+        print()
+        print("By target sound:   mistakes caught | good tries flagged")
+        for t, s in sorted(by_target.items()):
+            print(f"  {t:<5} {s.caught:>3} of {s.caught + s.missed:<3}            | {s.false_alarm:>3} of {s.passed + s.false_alarm}")
 
 
 if __name__ == "__main__":

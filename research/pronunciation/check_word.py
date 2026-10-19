@@ -16,7 +16,7 @@ def main():
     p.add_argument("word")
     p.add_argument("audio", help="a short recording of just that word (wav, m4a, mp3)")
     p.add_argument("--target", help="the sound being practiced, e.g. r, s, th, sh, l")
-    p.add_argument("--backend", default="wav2vec", choices=["wav2vec", "azure"])
+    p.add_argument("--backend", default="wav2vec", choices=["wav2vec", "gop", "azure"])
     p.add_argument("--deepgram", action="store_true", help="also print Deepgram's confidence for the word")
     a = p.parse_args()
 

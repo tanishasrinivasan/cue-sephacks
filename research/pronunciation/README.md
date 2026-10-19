@@ -11,7 +11,18 @@ The app already knows which word the kid was asked to say (daily words), so we d
 3. **Compare.** Line the two up and report what changed: `said w instead of ɹ → gliding (r said as w)`.
 4. **Clear try or not.** With a target sound (the one the therapist picked), a try is clear if that sound is right, the way therapists score it. Other sounds can vary, since accents and vowels differ. With no target, at least 80% of the sounds must be right.
 
-**First test (synthetic voice, 12 clips):** 6 words said right and the same 6 said with a typical kid error (wainbow, wocket, wed, thun, tat, poon). It caught all 6 errors and wrongly flagged 1 of 6 good tries: it missed the "s" at the start of "spoon". This is a computer voice, not a kid, so it only shows the pipeline works. Next is real kids' recordings (PERCEPT-R).
+**Synthetic test (computer voice, 54 clips, 13 sounds):** 27 words said right and the same 27 said with a typical kid error, covering r, l, s, z, k, g, sh, ch, th (both kinds), f, v and j, at the start, middle and end of words (wainbow, cawwot, wamp, thun, tootie, sue, fumb, ban, dump…).
+
+| Backend                                       | Agrees | Mistakes caught | Good tries flagged |
+| --------------------------------------------- | ------ | --------------- | ------------------ |
+| `wav2vec` (writes down what it hears)         | 85%    | 26 of 27        | 7 of 27            |
+| `gop` (checks each expected sound, see below) | 87%    | 25 of 27        | 5 of 27            |
+
+Most wrongly flagged words had quiet sounds (f, v, th, z) that computer voices blur, so real voices may do better. `gop` misses dropped sounds ("poon" for "spoon") because it assumes every expected sound is there. A second computer voice (Ryan) produced broken clips and was left out. Next is real kids' recordings (PERCEPT-R).
+
+Two things made a big difference: letting the model choose only English sounds (it knows dozens of languages) and padding clips with a quarter second of silence.
+
+**`gop` (goodness of pronunciation):** lines the expected sounds up with the audio, then checks whether another sound fits each stretch better than the expected one. Run it with `--backend gop`.
 
 ```
 Word:      rainbow

@@ -16,8 +16,6 @@ _SAME = {
     "ɾ": "t",  # American "butter" flap counts as t
     "ɐ": "ʌ",
     "ᵻ": "ɪ",
-    "ɚ": "ɝ",
-    "əl": "l",
     "o": "oʊ",
     "e": "eɪ",
     "g": "ɡ",
@@ -58,9 +56,18 @@ def normalize(ph: str) -> str:
     return _SAME.get(ph, ph)
 
 
+# Vowels with an r or l fused in ("car" = k ɑːɹ). Split them so the r or l can be checked on its own.
+_SPLIT = {"ɑɹ": ["ɑ", "ɹ"], "ɔɹ": ["ɔ", "ɹ"], "oɹ": ["oʊ", "ɹ"], "ɛɹ": ["ɛ", "ɹ"], "ɪɹ": ["ɪ", "ɹ"],
+          "ʊɹ": ["ʊ", "ɹ"], "aɪɹ": ["aɪ", "ɹ"], "aʊɹ": ["aʊ", "ɹ"], "ɚ": ["ə", "ɹ"], "ɝ": ["ɜ", "ɹ"],
+          "əl": ["ə", "l"]}
+
+
 def clean(phonemes: list[str]) -> list[str]:
-    out = [normalize(p) for p in phonemes]
-    return [p for p in out if p]
+    out: list[str] = []
+    for p in phonemes:
+        n = normalize(p)
+        out.extend(_SPLIT.get(n, [n] if n else []))
+    return out
 
 
 @dataclass
