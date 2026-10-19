@@ -54,3 +54,4 @@ scripts/out/
 
 # landing-page sign-ups saved while running locally (email addresses) — never commit
 /signups/
+__pycache__/

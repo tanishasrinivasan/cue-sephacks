@@ -1,0 +1,8 @@
+torch
+transformers
+librosa
+phonemizer
+espeakng-loader
+requests
+# Only for --backend azure:
+# azure-cognitiveservices-speech
