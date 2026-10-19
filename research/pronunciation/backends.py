@@ -29,12 +29,9 @@ def target_sound(t: str | None) -> str | None:
     return TARGETS.get(t.lower(), t)
 
 
-def expected_phonemes(word: str) -> list[str]:
-    """The sounds a word should have, from espeak (the same symbol set the wav2vec model was trained on)."""
-    from phonemizer import phonemize
-    from phonemizer.separator import Separator
-
-    try:  # use the espeak bundled by espeakng-loader, so nobody has to install espeak separately
+def use_bundled_espeak():
+    """Point phonemizer at the espeak bundled by espeakng-loader, so nobody has to install espeak separately."""
+    try:
         import espeakng_loader
         from phonemizer.backend.espeak.wrapper import EspeakWrapper
 
@@ -42,6 +39,14 @@ def expected_phonemes(word: str) -> list[str]:
         EspeakWrapper.set_data_path(espeakng_loader.get_data_path())
     except ImportError:
         pass
+
+
+def expected_phonemes(word: str) -> list[str]:
+    """The sounds a word should have, from espeak (the same symbol set the wav2vec model was trained on)."""
+    from phonemizer import phonemize
+    from phonemizer.separator import Separator
+
+    use_bundled_espeak()
 
     out = phonemize(
         word,
@@ -67,6 +72,7 @@ class Wav2Vec:
         import torch
         from transformers import AutoProcessor, Wav2Vec2ForCTC
 
+        use_bundled_espeak()  # the model's processor checks for espeak when it loads
         self.torch = torch
         self.processor = AutoProcessor.from_pretrained(model)
         self.model = Wav2Vec2ForCTC.from_pretrained(model).eval()
