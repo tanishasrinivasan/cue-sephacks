@@ -46,9 +46,15 @@ PATTERNS = {
 }
 
 
+# The wav2vec model sometimes writes vowels in a tone-numbered style from its other languages ("ei5").
+_DIPHTHONGS = {"ei": "eɪ", "ou": "oʊ", "ai": "aɪ", "au": "aʊ", "oi": "ɔɪ"}
+
+
 def normalize(ph: str) -> str:
     for ch in _STRIP:
         ph = ph.replace(ch, "")
+    ph = ph.rstrip("0123456789")
+    ph = _DIPHTHONGS.get(ph, ph)
     return _SAME.get(ph, ph)
 
 
@@ -103,9 +109,10 @@ class Result:
         return all(s.op == "ok" for s in spots)
 
     def clear(self, min_accuracy: float = 0.8) -> bool:
-        """A "clear try": the target sound is right (if one is set) and most sounds are right."""
-        if self.target_ok is False:
-            return False
+        """A "clear try". With a target sound, like a therapist scores it: the target sound is right.
+        Other sounds can vary (accents, vowels) without failing the try. Without a target: most sounds right."""
+        if self.target_ok is not None:
+            return self.target_ok
         return self.accuracy >= min_accuracy
 
     def explain(self) -> str:

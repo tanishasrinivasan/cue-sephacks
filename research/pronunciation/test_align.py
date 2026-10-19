@@ -49,6 +49,18 @@ class TestAlign(unittest.TestCase):
         r = compare("red", ["ɹ", "ɛ", "d"], ["r", "ˈɛ", "d"], target="r")
         self.assertEqual(r.accuracy, 1.0)
 
+    def test_model_tone_style_vowels(self):
+        # The model sometimes writes "ei5" for eɪ; it shouldn't throw off the alignment
+        self.assertEqual(normalize("ei5"), "eɪ")
+        r = compare("rainbow", RAINBOW, ["w", "ei5", "n", "b", "ou5"], target="ɹ")
+        [err] = r.errors
+        self.assertEqual((err.expected, err.said, err.pattern), ("ɹ", "w", "gliding (r said as w)"))
+
+    def test_vowel_differences_dont_fail_a_target_try(self):
+        # "sun" with a different vowel (accent): the s is right, so it's a clear try
+        r = compare("sun", ["s", "ʌ", "n"], ["s", "ɔ", "n"], target="s")
+        self.assertTrue(r.clear())
+
     def test_nothing_heard(self):
         r = compare("red", ["ɹ", "ɛ", "d"], [], target="ɹ")
         self.assertEqual(r.accuracy, 0.0)

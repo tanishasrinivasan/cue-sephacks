@@ -9,7 +9,9 @@ The app already knows which word the kid was asked to say (daily words), so we d
 1. **Expected sounds.** espeak turns the word into its sounds: `rainbow` → `ɹ eɪ n b oʊ`.
 2. **Heard sounds.** A phoneme model listens to the recording and writes down the sounds it actually heard, not the word it thinks was meant: `w eɪ n b oʊ`.
 3. **Compare.** Line the two up and report what changed: `said w instead of ɹ → gliding (r said as w)`.
-4. **Clear try or not.** A try counts as clear if the target sound (the one the therapist picked) is right and at least 80% of the sounds are right.
+4. **Clear try or not.** With a target sound (the one the therapist picked), a try is clear if that sound is right, the way therapists score it. Other sounds can vary, since accents and vowels differ. With no target, at least 80% of the sounds must be right.
+
+**First test (synthetic voice, 12 clips):** 6 words said right and the same 6 said with a typical kid error (wainbow, wocket, wed, thun, tat, poon). It caught all 6 errors and wrongly flagged 1 of 6 good tries: it missed the "s" at the start of "spoon". This is a computer voice, not a kid, so it only shows the pipeline works. Next is real kids' recordings (PERCEPT-R).
 
 ```
 Word:      rainbow
