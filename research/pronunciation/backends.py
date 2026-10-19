@@ -75,7 +75,13 @@ def load_audio(path: str):
     import numpy as np
 
     audio, _ = librosa.load(path, sr=16_000, mono=True)
-    # A quarter second of silence on each side: tightly trimmed clips lose their first and last sounds.
+    return pad_audio(audio)
+
+
+def pad_audio(audio):
+    """A quarter second of silence on each side: tightly trimmed clips lose their first and last sounds."""
+    import numpy as np
+
     pad = np.zeros(4_000, dtype=audio.dtype)
     return np.concatenate([pad, audio, pad])
 
@@ -96,7 +102,10 @@ class Wav2Vec:
         self.mask[keep] = 0.0
 
     def heard(self, path: str, word: str) -> list[str]:
-        audio = load_audio(path)
+        return self.heard_audio(load_audio(path), word)
+
+    def heard_audio(self, audio, word: str) -> list[str]:
+        """Same as heard(), for 16 kHz audio already in memory (padded with pad_audio)."""
         inputs = self.processor(audio, sampling_rate=16_000, return_tensors="pt")
         with self.torch.no_grad():
             logits = self.model(inputs.input_values).logits
@@ -118,11 +127,10 @@ class Wav2VecGOP(Wav2Vec):
         self.inv = {i: t for t, i in self.vocab.items()}
         self.blank = self.vocab[self.processor.tokenizer.pad_token]
 
-    def heard(self, path: str, word: str) -> list[str]:
+    def heard_audio(self, audio, word: str) -> list[str]:
         torch = self.torch
         expected = expected_phonemes(word)
         targets = [self.vocab[p] for p in expected if p in self.vocab]
-        audio = load_audio(path)
         inputs = self.processor(audio, sampling_rate=16_000, return_tensors="pt")
         with torch.no_grad():
             logits = self.model(inputs.input_values).logits[0]
